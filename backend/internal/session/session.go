@@ -1,6 +1,9 @@
 package session
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type SessionStore struct {
 	store map[string]Session
@@ -24,7 +27,10 @@ func (s *SessionStore) Evict(TokenID string) {
 	delete(s.store, TokenID)
 }
 
-func (s *SessionStore) Check(TokenID string) bool {
-	_, ok := s.store[TokenID]
-	return ok
+func (s *SessionStore) Check(tokenID string) (Session, error) {
+	sess, ok := s.store[tokenID]
+	if !ok {
+		return Session{}, fmt.Errorf("session not found")
+	}
+	return sess, nil
 }

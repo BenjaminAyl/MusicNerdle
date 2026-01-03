@@ -6,6 +6,7 @@ import (
 
 	"MusicNerdle/internal/db"
 	"MusicNerdle/internal/handlers"
+	"MusicNerdle/internal/middleware"
 	"MusicNerdle/internal/models"
 	"MusicNerdle/internal/services"
 	"MusicNerdle/internal/session"
@@ -16,30 +17,24 @@ import (
 
 func NewRouter() *mux.Router {
 	muxServer := mux.NewRouter()
-	InitRoutes(muxServer)
-	return muxServer
-}
-
-func InitRoutes(muxServer *mux.Router) {
 	db := db.Connect()
 	MigrateDB(db)
 	session := session.Init()
 	muxServer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, World!")
 	})
-	InitUserRoutes(muxServer, db, session)
-	InitGameRoutes(muxServer)
-}
-
-func InitUserRoutes(muxServer *mux.Router, db *gorm.DB, session *session.SessionStore) {
 	userService := services.NewUserService(db, session)
 	userHandler := handlers.NewUserHandler(userService)
 	muxServer.HandleFunc("/signup", userHandler.SignUp).Methods("POST")
 	muxServer.HandleFunc("/login", userHandler.Login).Methods("POST")
-}
 
-func InitGameRoutes(muxServer *mux.Router) {
+	api := muxServer.PathPrefix("/api").Subrouter()
+	api.Use(middleware.AuthMiddleware(session))
+	api.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, World!")
+	})
 
+	return muxServer
 }
 
 func MigrateDB(db *gorm.DB) {
