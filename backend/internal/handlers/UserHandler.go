@@ -3,6 +3,7 @@ package handlers
 import (
 	"MusicNerdle/internal/models"
 	"MusicNerdle/internal/services"
+	"MusicNerdle/internal/utils"
 	"encoding/json"
 	"net/http"
 )
@@ -52,4 +53,23 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		},
 	)
+}
+
+func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
+	userIdVal := r.Context().Value("userId")
+	if userIdVal == nil {
+		return
+	}
+	userId, ok := userIdVal.(string)
+	if !ok {
+		return
+	}
+
+	user, err := h.service.Me(userId)
+
+	if err != nil {
+		return
+	}
+
+	utils.WriteJSON(w, 200, user)
 }
