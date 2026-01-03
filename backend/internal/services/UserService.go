@@ -35,7 +35,11 @@ func (service *UserService) CreateUser(createUserDTO *models.CreateUserDTO) erro
 		Username: createUserDTO.Username,
 		Email:    createUserDTO.Email,
 		Password: string(hashedPassword),
+		UserData: models.UserData{
+			Username: createUserDTO.Username,
+		},
 	}
+
 	return service.db.Create(&user).Error
 }
 
@@ -58,4 +62,15 @@ func (service *UserService) Login(loginDTO *models.LoginDTO) (*session.Session, 
 	service.store.Add(session)
 
 	return session, nil
+}
+
+func (service *UserService) Me(UserId string) (models.UserData, error) {
+	var user models.UserData
+
+	err := service.db.Where("id = ?", UserId).First(&user).Error
+	if err != nil {
+		return models.UserData{}, err
+	}
+
+	return user, nil
 }

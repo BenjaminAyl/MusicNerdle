@@ -30,13 +30,11 @@ func NewRouter() *mux.Router {
 
 	api := muxServer.PathPrefix("/api").Subrouter()
 	api.Use(middleware.AuthMiddleware(session))
-	api.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, World!")
-	})
+	api.HandleFunc("/me", userHandler.Me)
 
 	return muxServer
 }
 
 func MigrateDB(db *gorm.DB) {
-	db.AutoMigrate(&models.UserModel{})
+	db.AutoMigrate(&models.UserModel{}, &models.UserData{})
 }
