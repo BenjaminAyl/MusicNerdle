@@ -1,0 +1,17 @@
+_build/
+deps/
+.elixir_ls/
+.lexical/
+cover/
+doc/
+priv/static/assets/
+priv/static/cache_manifest.json
+assets/node_modules/
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.md
+.env
+.env.*
